@@ -37,23 +37,19 @@ public:
 
 
         while (true){
-            mySocket1.Write(ByteArray("******Your turn******\n"));
 
             cout<<"Player 1's turn" <<endl;
 
             mySocket1.Read(bytes);
+            string pOneInput = "Player 1 Entered: " + bytes.ToString() + "\n *****Your turn*****\n";
 
-            mySocket1.Write(ByteArray("Player 1 ENTERED : "));
-            mySocket1.Write(bytes);
-            mySocket1.Write(ByteArray("\n"));
-            mySocket2.Write(ByteArray("******Your turn******\n"));
+            mySocket2.Write(ByteArray(pOneInput));
 
             cout<<"Player 2's turn" <<endl;
 
             mySocket2.Read(bytes);
-            mySocket1.Write(ByteArray("Player 2 ENTERED : "));
-            mySocket1.Write(bytes);
-            mySocket1.Write(ByteArray("\n"));
+            string pTwoInput = "Player 2 Entered: " + bytes.ToString() + "\n *****Your turn*****\n";
+            mySocket1.Write(ByteArray(pTwoInput));
 
 
             cout <<"your message is: "<< bytes.ToString() << endl;

@@ -38,12 +38,14 @@ int main(void) {
 
 			cin >> input;
 			myByteArray = ByteArray(input);
+			
+
+
 			int written = mySocket.Write(myByteArray);
 			if (written != myByteArray.v.size()){
 				cout << "Wrote: " << written << endl;
 				cout << "socket closed unexpectedly" << endl;
 				break;
-
 			}
 			else{
 				cout << "Sent: " << input << endl;
