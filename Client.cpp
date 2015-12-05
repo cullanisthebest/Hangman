@@ -14,27 +14,30 @@ int main(void) {
 		Socket mySocket("127.0.0.1", 2000);
 		mySocket.Open();
 		string input = "";
+		int counter = 0;
+		ByteArray myByteArray;
 
 		while(input != "exit"){
-			cout<< "Enter: " <<endl;
-		/*	FlexWait waiter(2, &cinWatcher, &mySocket);
-			Blockable * result = waiter.Wait();
-			if (result == &mySocket){
-				ByteArray tmp;
-				if (mySocket.Read(tmp) <= 0){
-					cout << "disconnection" << endl;
-					cout << "socket closed unexpectedly" << endl;
-					break;
+			if (counter == 0){
+				//cout<< "Enter yes to play game: " <<endl;
+				mySocket.Read(myByteArray);
+				std::cout << myByteArray.ToString() << endl;
+				mySocket.Read(myByteArray);
+				std::cout << myByteArray.ToString() << endl;
+				counter++;
+
+				if (myByteArray.ToString() == "******Entering Game As Player 2. Player 1 Turn******\n"){
+					mySocket.Read(myByteArray);
+					std::cout << myByteArray.ToString() << endl;
+					//mySocket.Read(myByteArray);
+					//std::cout << myByteArray.ToString() << endl;
 				}
-				else{
-					input = tmp.ToString();
-					cout << "Received Top: " << input  << endl;
-					continue;
-				}
+
 			}
-			else{*/
+
+
 			cin >> input;
-			ByteArray myByteArray(input);
+			myByteArray = ByteArray(input);
 			int written = mySocket.Write(myByteArray);
 			if (written != myByteArray.v.size()){
 				cout << "Wrote: " << written << endl;
@@ -52,7 +55,7 @@ int main(void) {
 			}
 
 			//mySocket.Read(myByteArray);
-			std::cout << "Received : " << myByteArray.ToString() << endl;
+			std::cout << myByteArray.ToString() << endl;
 			//}
 		}
 		cout << "Sleep" << endl;
