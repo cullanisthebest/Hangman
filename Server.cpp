@@ -87,62 +87,124 @@ public:
 
         bool win = false;
 
-        while (win != true){
+        while (win != true ){ // turns < 30
             if(toString(resultVector)!=toString(gameWordVector)){
                 cout<<"Player 1's turn" <<endl;
 
                 mySocket1.Read(bytes);
-                char letter = (bytes.ToString())[0];
-                updateBoard(&resultVector, gameWordVector, letter);
-                
-                resultString = toString(resultVector);
-                
-/*
-                if (toString(resultVector)==toString(gameWordVector)){
-                    
-                }*/
-                string pOneInput = "Player 1 Entered: " + bytes.ToString() + "\n *****Your turn*****\n the game board is:" + resultString + "\n";
-               
-                mySocket2.Write(ByteArray(pOneInput));
-                string currentGameBoard = "the game board is: " + resultString;
-                mySocket1.Write(ByteArray(currentGameBoard));
-            }
+                string upperInput1 = bytes.ToString();
 
-            if(toString(resultVector)==toString(gameWordVector)){
-                mySocket1.Write(ByteArray("Player 1 wins! Game is now over"));
-                mySocket2.Write(ByteArray("Player 1 wins! Game is now over"));
+
+                if (bytes.ToString().length() > 1 && upperInput1 == gameWord){
+                   string finalP1 = "YOU WIN YAAAAA! Game is now over. The word was: " + gameWord;
+                   string finalP2 = "YOU LOSE. YOU ALSO SMELL. Game is now over. The word was: " + gameWord;
+
+                   mySocket1.Write(ByteArray(finalP1));
+                   mySocket2.Write(ByteArray(finalP2));
+                   mySocket1.Close();
+                   mySocket2.Close();
+                   win = true;
+                   break;
+               }
+
+               char letter = (bytes.ToString())[0];
+               letter = toupper(letter);
+               updateBoard(&resultVector, gameWordVector, letter);
+
+               resultString = toString(resultVector);
+
+
+               if (toString(resultVector)==toString(gameWordVector)){
+                string finalP1 = "YOU WIN YAAAAA! Game is now over. The word was: " + toString(resultVector);
+                string finalP2 = "YOU LOSE. YOU ALSO SMELL. Game is now over. The word was: " + toString(resultVector);
+
+                mySocket1.Write(ByteArray(finalP1));
+                mySocket2.Write(ByteArray(finalP2));
                 mySocket1.Close();
                 mySocket2.Close();
                 win = true;
                 break;
+
             }
+            else{
+               string pOneInput = "Player 1 Entered: " + bytes.ToString() + "\n *****Your turn*****\n the game board is:" + resultString + "\n";
+               mySocket2.Write(ByteArray(pOneInput));
+               string currentGameBoard = "the game board is: " + resultString;
+               mySocket1.Write(ByteArray(currentGameBoard));
+
+           }
+
+       }
+
+           /*if(toString(resultVector)==toString(gameWordVector)){
+            mySocket1.Write(ByteArray("Player 1 wins! Game is now over"));
+            mySocket2.Write(ByteArray("Player 1 wins! Game is now over"));
+            mySocket1.Close();
+            mySocket2.Close();
+            win = true;
+            break;
+        }*/
 
             if(toString(resultVector)!=toString(gameWordVector)){
                 cout<<"Player 2's turn" <<endl;
 
                 mySocket2.Read(bytes);
+                string upperInput = bytes.ToString();
+                std::transform (upperInput.begin(), upperInput.end(), upperInput.begin(), toupper));
+
+                if (bytes.ToString().length() > 1 && upperInput == gameWord){
+                   string finalP2 = "YOU WIN YAAAAA! Game is now over. The word was: " + gameWord;
+                   string finalP1 = "YOU LOSE. YOU ALSO SMELL. Game is now over. The word was: " + gameWord;
+
+                   mySocket1.Write(ByteArray(finalP1));
+                   mySocket2.Write(ByteArray(finalP2));
+                   mySocket1.Close();
+                   mySocket2.Close();
+                   win = true;
+                   break;
+               }
+
                 char letterP2 = (bytes.ToString())[0];
+                letterP2 = toupper(letterP2);
+
                 updateBoard(&resultVector, gameWordVector, letterP2);
                 resultString = toString(resultVector);
-                string pTwoInput = "Player 2 Entered: " + bytes.ToString() + "\n *****Your turn*****\n the game board is:" + resultString + "\n";
-                mySocket1.Write(ByteArray(pTwoInput));
-                string currentGameBoard = "the game board is: " + resultString;
-                mySocket2.Write(ByteArray(currentGameBoard));
-            }
 
-            if(toString(resultVector)==toString(gameWordVector)){
-                mySocket1.Write(ByteArray("Player 2 wins! Game is now over"));
-                mySocket2.Write(ByteArray("Player 2 wins! Game is now over"));
-                mySocket1.Close();
-                mySocket2.Close();
-                win = true;
-                break;
-            }
+                if (toString(resultVector)==toString(gameWordVector)){
+                    string finalP2 = "YOU WIN YAAAAA! Game is now over. The word was: " + toString(resultVector);
+                    string finalP1 = "YOU LOSE. YOU ALSO SMELL. Game is now over. The word was: " + toString(resultVector);
 
-        }
-        cout << "game over" << endl;
+                    mySocket1.Write(ByteArray(finalP1));
+                    mySocket2.Write(ByteArray(finalP2));
+                    mySocket1.Close();
+                    mySocket2.Close();
+                    win = true;
+                    break;
+                }
+                else{
+                   string pTwoInput = "Player 2 Entered: " + bytes.ToString() + "\n *****Your turn*****\n the game board is:" + resultString + "\n";
+                   mySocket1.Write(ByteArray(pTwoInput));
+                   string currentGameBoard = "the game board is: " + resultString;
+                   mySocket2.Write(ByteArray(currentGameBoard));
+
+               }
+
+
+           }
+
+      /* if(toString(resultVector)==toString(gameWordVector)){
+        mySocket1.Write(ByteArray("Player 2 wins! Game is now over"));
+        mySocket2.Write(ByteArray("Player 2 wins! Game is now over"));
+        mySocket1.Close();
+        mySocket2.Close();
+        win = true;
+        break;
+    }*/
 
     }
+    cout << "game over" << endl;
+
+}
 };
 
 
@@ -155,10 +217,10 @@ int main(int argc, char **argv) {
     vector<GameThread *> vThreads;
    // Socket mySocket1(0);
     for(;;){
-       try{
-           FlexWait waiter(2, &mySocketServer, &cinWatcher);
-           Blockable * result = waiter.Wait();
-           if (result == &cinWatcher){
+     try{
+         FlexWait waiter(2, &mySocketServer, &cinWatcher);
+         Blockable * result = waiter.Wait();
+         if (result == &cinWatcher){
             cout<< "I AM SERVER, type exit to close me" <<endl;
             string input;
             cin >> input;
