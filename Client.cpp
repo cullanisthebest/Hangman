@@ -26,7 +26,7 @@ int main(void) {
 				std::cout << myByteArray.ToString() << endl;
 				counter++;
 
-				if (myByteArray.ToString() == "******Entering Game As Player 2. Player 1 Turn******\n"){
+				if ((myByteArray.ToString()).find("******Entering Game As Player 2") != std::string::npos){
 					mySocket.Read(myByteArray);
 					std::cout << myByteArray.ToString() << endl;
 					//mySocket.Read(myByteArray);
@@ -38,10 +38,9 @@ int main(void) {
 
 			cin >> input;
 			myByteArray = ByteArray(input);
-			
-
 
 			int written = mySocket.Write(myByteArray);
+
 			if (written != myByteArray.v.size()){
 				cout << "Wrote: " << written << endl;
 				cout << "socket closed unexpectedly" << endl;
@@ -49,6 +48,13 @@ int main(void) {
 			}
 			else{
 				cout << "Sent: " << input << endl;
+				//reads the game board
+				mySocket.Read(myByteArray);
+				std::cout << myByteArray.ToString() << endl;
+
+				/*if (myByteArray.ToString() == "Player 1 wins"){
+					mySocket.Close();
+				}*/
 			}
 
 			if (mySocket.Read(myByteArray) <=0){
