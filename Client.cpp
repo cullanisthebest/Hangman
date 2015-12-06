@@ -30,7 +30,7 @@ int main(void) {
 					mySocket.Read(myByteArray);
 					std::cout << myByteArray.ToString() << endl;
 
-					if ((myByteArray.ToString()).find("Game is now over") != std::string::npos) {
+					if (myByteArray.ToString() == "exit" || (myByteArray.ToString()).find("Game is now over") != std::string::npos) {
 						mySocket.Close();
 						break;
 					}
@@ -42,6 +42,11 @@ int main(void) {
 
 
 			cin >> input;
+			if(input == "exit"){
+				mySocket.Write(ByteArray("exit"));
+				mySocket.Close();
+				break;
+			}
 			myByteArray = ByteArray(input);
 
 			int written = mySocket.Write(myByteArray);
@@ -57,7 +62,7 @@ int main(void) {
 				mySocket.Read(myByteArray);
 				std::cout << myByteArray.ToString() << endl;
 
-				if ((myByteArray.ToString()).find("Game is now over") != std::string::npos) {
+				if (myByteArray.ToString() == "exit" || (myByteArray.ToString()).find("Game is now over") != std::string::npos) {
 					mySocket.Close();
 					break;
 				}
@@ -67,7 +72,7 @@ int main(void) {
 				cout << "socket closed unexpectedly" << endl;
 				break;
 			}
-			if ((myByteArray.ToString()).find("Game is now over") != std::string::npos) {
+			if (myByteArray.ToString() == "exit" || (myByteArray.ToString()).find("Game is now over") != std::string::npos) {
 				std::cout << myByteArray.ToString() << endl;
 				mySocket.Close();
 				break;

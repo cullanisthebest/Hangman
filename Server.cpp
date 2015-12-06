@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <cstring>
 #include <vector>
+#include <algorithm>
 
 
 using namespace std;
@@ -42,6 +43,18 @@ public:
             }
         }
     }
+
+    void toUpperString(string& s)
+    {
+      string::iterator i = s.begin();
+      string::iterator end = s.end();
+
+      while (i != end) {
+        *i = toupper((unsigned char)*i);
+        ++i;
+      }
+    }
+
 
     GameThread(Socket const  player1, Socket const  player2)
     : Thread(true), mySocket1(player1), mySocket2(player2)
@@ -86,14 +99,24 @@ public:
         mySocket2.Write(ByteArray(initialMessageP2));
 
         bool win = false;
+        int turns = 0;
 
-        while (win != true ){ // turns < 30
+        while (win != true && turns < 20){ 
             if(toString(resultVector)!=toString(gameWordVector)){
                 cout<<"Player 1's turn" <<endl;
 
                 mySocket1.Read(bytes);
                 string upperInput1 = bytes.ToString();
+                toUpperString(upperInput1);
 
+                if(upperInput1 == "EXIT"){
+                   mySocket1.Write(ByteArray("exit"));
+                   mySocket2.Write(ByteArray("exit"));
+                   mySocket1.Close();
+                   mySocket2.Close();
+                   win = true;
+                   break;
+                }
 
                 if (bytes.ToString().length() > 1 && upperInput1 == gameWord){
                    string finalP1 = "YOU WIN YAAAAA! Game is now over. The word was: " + gameWord;
@@ -133,24 +156,24 @@ public:
                mySocket1.Write(ByteArray(currentGameBoard));
 
            }
-
+           turns++;
        }
-
-           /*if(toString(resultVector)==toString(gameWordVector)){
-            mySocket1.Write(ByteArray("Player 1 wins! Game is now over"));
-            mySocket2.Write(ByteArray("Player 1 wins! Game is now over"));
-            mySocket1.Close();
-            mySocket2.Close();
-            win = true;
-            break;
-        }*/
 
             if(toString(resultVector)!=toString(gameWordVector)){
                 cout<<"Player 2's turn" <<endl;
 
                 mySocket2.Read(bytes);
                 string upperInput = bytes.ToString();
-                std::transform (upperInput.begin(), upperInput.end(), upperInput.begin(), toupper));
+                toUpperString(upperInput);
+                
+                if(upperInput == "EXIT"){
+                   mySocket1.Write(ByteArray("exit"));
+                   mySocket2.Write(ByteArray("exit"));
+                   mySocket1.Close();
+                   mySocket2.Close();
+                   win = true;
+                   break;
+                }
 
                 if (bytes.ToString().length() > 1 && upperInput == gameWord){
                    string finalP2 = "YOU WIN YAAAAA! Game is now over. The word was: " + gameWord;
@@ -188,22 +211,12 @@ public:
                    mySocket2.Write(ByteArray(currentGameBoard));
 
                }
-
-
+               turns++;
            }
-
-      /* if(toString(resultVector)==toString(gameWordVector)){
-        mySocket1.Write(ByteArray("Player 2 wins! Game is now over"));
-        mySocket2.Write(ByteArray("Player 2 wins! Game is now over"));
-        mySocket1.Close();
-        mySocket2.Close();
-        win = true;
-        break;
-    }*/
-
     }
     cout << "game over" << endl;
-
+    mySocket1.Close();
+    mySocket2.Close();
 }
 };
 
@@ -258,6 +271,7 @@ int main(int argc, char **argv) {
   }
 }
 cout << "server is going to bed" << endl;
+//delete mySocketServer;
 sleep(1);
 return 0;
 }
