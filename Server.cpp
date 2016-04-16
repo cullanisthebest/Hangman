@@ -21,12 +21,9 @@ using namespace Communication;
 
 class GameThread : public Thread
 {
-
-private:
-    Socket mySocket1;
-    Socket mySocket2;
-
 public:
+     Socket mySocket1;
+    Socket mySocket2;
     string toString(std::vector<char> v){
         string result = "";
         for (int i = 0; i < v.size(); i++){
@@ -72,7 +69,6 @@ public:
         std::vector<char> resultVector;
 
         string gameWord = words[gameWordIndex];
-        //cout << gameWord << "size:" << gameWord.size()  <<endl;
 
 
         for (int i = 0; i < gameWord.size(); i++){
@@ -87,7 +83,6 @@ public:
         cout << endl;
 
         string resultString = toString(resultVector);
-        //cout<< resultString << endl;
 
         cout<<"Now in a game thread"<<endl;
         ByteArray bytes;
@@ -105,7 +100,15 @@ public:
             if(toString(resultVector)!=toString(gameWordVector)){
                 cout<<"Player 1's turn" <<endl;
 
-                mySocket1.Read(bytes);
+                /**********READING PLAYER 1 INPUT ************************/
+                //mySocket1.Read(bytes);
+                if (mySocket1.Read(bytes) <= 0){
+                    mySocket1.Write(ByteArray("exit"));
+                    mySocket2.Write(ByteArray("exit"));
+                    mySocket1.Close();
+                    mySocket2.Close();
+                    break;
+                }
                 string upperInput1 = bytes.ToString();
                 toUpperString(upperInput1);
 
@@ -162,7 +165,15 @@ public:
             if(toString(resultVector)!=toString(gameWordVector)){
                 cout<<"Player 2's turn" <<endl;
 
-                mySocket2.Read(bytes);
+                /**********READING PLAYER 2 INPUT ************************/
+               // mySocket2.Read(bytes);
+                if (mySocket2.Read(bytes) <= 0){
+                    mySocket1.Write(ByteArray("exit"));
+                    mySocket2.Write(ByteArray("exit"));
+                    mySocket1.Close();
+                    mySocket2.Close();
+                    break;
+                }
                 string upperInput = bytes.ToString();
                 toUpperString(upperInput);
                 
@@ -214,13 +225,11 @@ public:
                turns++;
            }
     }
+    cout << mySocket1 << endl;
+    cout << mySocket2 << endl;
     cout << "game over" << endl;
-    mySocket1.Close();
-    mySocket2.Close();
 }
 };
-
-
 
 
 int main(int argc, char **argv) {
@@ -240,6 +249,9 @@ int main(int argc, char **argv) {
             if (input == "exit"){
                 cout << "exiting!!" << endl;
                 for (int i = 0; i < vThreads.size(); i++){
+                    vThreads[i]->mySocket1.Close();
+                    vThreads[i]->mySocket2.Close();
+                    vThreads[i] = NULL;
                     delete vThreads[i];
                 }
                 break;
@@ -257,7 +269,6 @@ int main(int argc, char **argv) {
 
             cout << "making game " << endl;
             continue;
-            //break;
         }
 
 
@@ -271,6 +282,8 @@ int main(int argc, char **argv) {
   }
 }
 cout << "server is going to bed" << endl;
+mySocketServer.Shutdown();
+
 //delete mySocketServer;
 sleep(1);
 return 0;

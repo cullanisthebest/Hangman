@@ -107,6 +107,5 @@ void Socket::Close(void)
     shutdown(GetFD(),SHUT_RDWR);
     open = false;
     terminator.Trigger();
-
 }
 };
